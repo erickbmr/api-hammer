@@ -18,7 +18,6 @@ namespace Lotest.Worker
 
         public static string[] GenerateRandomRequests(int requestCount)
         {
-            //TODO
             throw new NotImplementedException();
         }
 
