@@ -165,7 +165,7 @@ namespace Lotest.Worker
                     ? client.PostWithBasicAuthAsync(headers.Target, payload, headers.UserName, headers.Password)
                     : client.PostWithTokenAsync(headers.Target, payload, headers.Token);
             }
-            Console.WriteLine("done!");
+            Console.WriteLine("requests done!");
         }
 
         private static async void DoRequestsWaitingForResponse(IClient client, RequestHeaders headers, string[] jsonPayloads)
