@@ -16,7 +16,10 @@ namespace Lotest.Worker
             return result;
         }
 
-        //TODO - Generate random JSONs with Bogus
+        public static string[] GenerateRandomRequests(int requestCount)
+        {
+            throw new NotImplementedException();
+        }
 
         private static string GetRequestJSON(Dictionary<string, object> properties, int index)
         {

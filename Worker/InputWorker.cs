@@ -28,7 +28,7 @@ namespace Lotest.Worker
                         //TODO
                         //generate random JSON on content worker
                         //start request worker
-                        break;
+                    break;
 
                     default:
                         Console.WriteLine(option);
