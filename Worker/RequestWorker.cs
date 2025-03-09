@@ -19,7 +19,6 @@ namespace Lotest.Worker
             if (clientService == null) return;
 
             //TODO - add the validation for Authentication type (none, basic, token)
-
             switch (loadType)
             {
                 case LoadType.Concurrent:
