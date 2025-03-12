@@ -1,28 +1,49 @@
-﻿using Lotest.Helper;
+﻿using Bogus;
+using Lotest.DTOs;
+using Lotest.Helper;
 
 namespace Lotest.Worker
 {
     public static class ContentWorker
     {
-        public static string[] GetRequests(Dictionary<string, object> properties, int requestCount)
+        public static string[] GetPayloads(Dictionary<string, object> properties, int requestCount)
         {
             var result = new string[requestCount];
 
             for (int i = 0; i < requestCount; i++)
             {
-                result[i] = GetRequestJSON(properties, i);
+                result[i] = GetPayloadJSON(properties, i);
             }
 
             return result;
         }
 
-        public static string[] GenerateRandomRequests(int requestCount)
+        public static string[] GenerateRandomPayloads(int requestCount)
         {
-            //TODO
-            throw new NotImplementedException();
+            var result = new string[requestCount];
+
+            for (int i = 0; i < requestCount; i++)
+            {
+                result[i] = GetRandomPayloadJSON();
+            }
+
+            return result;
         }
 
-        private static string GetRequestJSON(Dictionary<string, object> properties, int index)
+        private static string GetRandomPayloadJSON()
+        {
+            var payload = new Faker<PayloadExample>()
+                .RuleFor(u => u.Id, f => f.Random.Int())
+                .RuleFor(u => u.Code, f => f.Random.Guid().ToString())
+                .RuleFor(u => u.City, f => f.Address.City())
+                .RuleFor(u => u.Country, f => f.Address.Country())
+                .RuleFor(u => u.Name, f => f.Person.FirstName)
+                .RuleFor(u => u.LastName, f => f.Person.LastName);
+
+            return JSON.GetObjectAsJson(payload.Generate());
+        }
+
+        private static string GetPayloadJSON(Dictionary<string, object> properties, int index)
         {
             var random = new Random();
             var jsonProperties = new Dictionary<string, object>();

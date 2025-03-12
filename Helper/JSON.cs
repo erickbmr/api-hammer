@@ -14,5 +14,10 @@ namespace Lotest.Helper
         {
             return JsonConvert.SerializeObject(jsonProperties);
         }
+
+        public static string GetObjectAsJson(object value)
+        {
+            return JsonConvert.SerializeObject(value);
+        }
     }
 }
