@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Lotest.Helper;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Lotest.Worker
 {
@@ -18,21 +19,23 @@ namespace Lotest.Worker
                 switch (option)
                 {
                     case "1":
-                        //TODO
-                        //get JSON input
-                        //get requests from content worker
-                        //start request worker
-                    break;
+                        Console.Write("JSON payload (single line): ");
+                        var json = Console.ReadLine() ?? string.Empty;
+                        var properties = JSON.GetProperties(json);
+                        var count1 = GetRequestCountFromUser();
+                        var payloads1 = ContentWorker.GetPayloads(properties, count1);
+                        RequestWorker.Start(serviceProvider, payloads1);
+                        break;
 
                     case "2":
-                        //TODO
-                        //generate random JSON on content worker
-                        //start request worker
-                    break;
+                        var count2 = GetRequestCountFromUser();
+                        var payloads2 = ContentWorker.GenerateRandomPayloads(count2);
+                        RequestWorker.Start(serviceProvider, payloads2);
+                        break;
 
                     default:
                         Console.WriteLine(option);
-                    break;
+                        break;
                 }
 
                 Console.WriteLine("\n\n\n");
@@ -46,6 +49,18 @@ namespace Lotest.Worker
             Console.WriteLine("2 - generate a random JSON content");
             Console.WriteLine("0 - exit");
             Console.Write("(1/2/0): ");
+        }
+
+        private static int GetRequestCountFromUser()
+        {
+            int count;
+            countInput:
+            {
+                Console.Write("number of requests: ");
+                var input = Console.ReadLine() ?? string.Empty;
+                if (!int.TryParse(input, out count) || count <= 0) goto countInput;
+            }
+            return count;
         }
     }
 }
