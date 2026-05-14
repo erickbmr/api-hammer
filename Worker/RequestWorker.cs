@@ -18,7 +18,6 @@ namespace Lotest.Worker
             var clientService = serviceProvider.GetService<IClient>();
             if (clientService == null) return;
 
-            //TODO - add the validation for Authentication type (none, basic, token)
             switch (loadType)
             {
                 case LoadType.Concurrent:
@@ -138,21 +137,23 @@ namespace Lotest.Worker
             Console.Write("(0/1/2): ");
         }
 
+        private static Task<HttpResponseMessage> SendRequestAsync(IClient client, RequestHeaders headers, string payload)
+        {
+            return headers.AuthType switch
+            {
+                AuthenticationType.Basic => client.PostWithBasicAuthAsync(headers.Target, payload, headers.UserName, headers.Password),
+                AuthenticationType.Token => client.PostWithTokenAsync(headers.Target, payload, headers.Token),
+                _                        => client.PostWithoutAuthAsync(headers.Target, payload),
+            };
+        }
+
         private static async void DoConcurrentRequests(IClient client, RequestHeaders headers, string[] jsonPayloads)
         {
-            var tasks = new List<Task<HttpResponseMessage>>();
-            foreach (var payload in jsonPayloads)
-            {
-                tasks.Add(headers.AuthType == AuthenticationType.Basic 
-                    ? client.PostWithBasicAuthAsync(headers.Target, payload, headers.UserName, headers.Password)
-                    : client.PostWithTokenAsync(headers.Target, payload, headers.Token)
-                );
-            }
-
+            var tasks = jsonPayloads.Select(p => SendRequestAsync(client, headers, p)).ToList();
             var responses = await Task.WhenAll(tasks);
             foreach (var response in responses)
             {
-                Console.WriteLine(response?.Content?.ToString());
+                Console.WriteLine(await response.Content.ReadAsStringAsync());
             }
         }
 
@@ -160,9 +161,7 @@ namespace Lotest.Worker
         {
             foreach (var payload in jsonPayloads)
             {
-                _ = headers.AuthType == AuthenticationType.Basic
-                    ? client.PostWithBasicAuthAsync(headers.Target, payload, headers.UserName, headers.Password)
-                    : client.PostWithTokenAsync(headers.Target, payload, headers.Token);
+                _ = SendRequestAsync(client, headers, payload);
             }
             Console.WriteLine("requests done!");
         }
@@ -171,11 +170,8 @@ namespace Lotest.Worker
         {
             foreach (var payload in jsonPayloads)
             {
-                var response = headers.AuthType == AuthenticationType.Basic
-                    ? await client.PostWithBasicAuthAsync(headers.Target, payload, headers.UserName, headers.Password)
-                    : await client.PostWithTokenAsync(headers.Target, payload, headers.Token);
-                
-                Console.WriteLine(response?.Content?.ToString());
+                var response = await SendRequestAsync(client, headers, payload);
+                Console.WriteLine(await response.Content.ReadAsStringAsync());
             }
         }
     }
